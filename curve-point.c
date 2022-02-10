@@ -96,10 +96,16 @@ struct CurvePoint montgomeryLadder(struct CurvePoint *A, struct FieldElement *n)
         }
 
         temp = n->lower;
-        len = (int)(log(temp) / log(2)) + 1;
+        if (n->upper > 0)
+        {
+            len = (int)(log(temp) / log(2)) + 1;
+        }
+        else
+        {
+            len = 32;
+        }
         pos = (1 << (len - 1));
     }
 
-    struct CurvePoint result;
-    return result;
+    return R;
 }
