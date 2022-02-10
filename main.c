@@ -43,7 +43,7 @@ int main()
     printBinaryFEWithLabel("montgomeryLadder", &ladder);
 
     struct FieldElement retrive_y = retrive_yn(&a, &ladder.x);
-    printCPBinary("retrive_yn()", &retrive_y);
+    printCPBinaryWithLabel("retrive_yn()", &retrive_y);
 
     // TODO add solution code
 

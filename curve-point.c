@@ -50,6 +50,8 @@ struct CurvePoint doubleCP(struct CurvePoint *A);
  */
 struct CurvePoint montgomeryLadder(struct CurvePoint *A, struct FieldElement *n);
 
+void printCPBinaryWithLabel(char label[], struct CurvePoint *P);
+
 // FUNCTION IMPLEMENTATIONS
 
 struct CurvePoint addCP(struct CurvePoint *A, struct CurvePoint *B)
