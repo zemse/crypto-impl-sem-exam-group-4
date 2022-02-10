@@ -88,6 +88,22 @@ void printFEWithLabel(char label[], struct FieldElement *a);
 
 // FUNCTION IMPLEMENTATIONS
 
+// subtracts a and b only if a > b
+struct FieldElement _subFE(struct FieldElement *a, struct FieldElement *b)
+{
+    if (ltFE(a, b))
+    {
+        printf("Error in subFE: a is not less than b.\n");
+        printBinaryFEWithLabel("a", a);
+        printBinaryFEWithLabel("b", b);
+        exit(EXIT_FAILURE);
+    }
+    struct Uint31Result resultLower = subU31_2(a->lower, b->lower);
+    uint31 resultUpper = subU31(a->upper, b->upper); // does not overflow bcz the above if condition implies a >= b
+    resultUpper = subU31(resultUpper, resultLower.carry);
+    struct FieldElement result = {.upper = resultUpper, .lower = resultLower.value};
+    return result;
+}
 struct FieldElement addFE(struct FieldElement *a, struct FieldElement *b)
 {
     checkFE(a);
@@ -103,25 +119,15 @@ struct FieldElement addFE(struct FieldElement *a, struct FieldElement *b)
         // A < P and B < P
         // => A + B < 2P
         // => A + B - P < P
-        result = subFE(&result, &prime);
+        result = _subFE(&result, &prime);
     }
     return result;
 }
 
 struct FieldElement subFE(struct FieldElement *a, struct FieldElement *b)
 {
-    if (ltFE(a, b))
-    {
-        printf("Error in subFE: a is not less than b.\n");
-        printBinaryFEWithLabel("a", a);
-        printBinaryFEWithLabel("b", b);
-        exit(EXIT_FAILURE);
-    }
-    struct Uint31Result resultLower = subU31_2(a->lower, b->lower);
-    uint31 resultUpper = subU31(a->upper, b->upper); // does not overflow bcz the above if condition implies a >= b
-    resultUpper = subU31(resultUpper, resultLower.carry);
-    struct FieldElement result = {.upper = resultUpper, .lower = resultLower.value};
-    return result;
+    struct FieldElement b_inv = _subFE(&prime, b);
+    return addFE(a, &b_inv);
 }
 
 void modFE(struct FieldElement *a)
