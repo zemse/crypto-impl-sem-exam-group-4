@@ -19,11 +19,14 @@ int main()
     struct FieldElement ordP = {.upper = 268435456, .lower = 12309815}; // ord(P) = 576460752315733303 = 268435456 * 2^31 + 12309815
 
     // LOGIC:
-    struct FieldElement a = {.upper = 1 << 29, .lower = 1 << 30};
-    struct FieldElement b = {.upper = 1 << 29, .lower = 1 << 30};
+    struct FieldElement a = {.upper = 1 << 28, .lower = 1 << 30};
+    struct FieldElement b = {.upper = 1 << 28, .lower = 1 << 30};
 
     struct FieldElement res = addFE(&a, &b);
     printBinaryFEWithLabel("addFE(a,b)", &res);
+
+    struct FieldElement resSub = subFE(&res, &b);
+    printBinaryFEWithLabel("subFE(a+b,b)", &resSub);
 
     // TODO add solution code
 

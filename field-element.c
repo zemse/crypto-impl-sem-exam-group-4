@@ -38,14 +38,25 @@ void modFE(struct FieldElement *a);
  * 
  * @param a FieldElement value to be added.
  * @param b FieldElement value to be added.
+ * @return result of addition struct FieldElement
  */
 struct FieldElement addFE(struct FieldElement *a, struct FieldElement *b);
+
+/**
+ * @brief Subtracts a and b then returns a new FieldElement structure (Field Addition).
+ * 
+ * @param a FieldElement value to be subtracted from.
+ * @param b FieldElement value to be subtracted.
+ * @return result of subtraction struct FieldElement 
+ */
+struct FieldElement subFE(struct FieldElement *a, struct FieldElement *b);
 
 /**
  * @brief Multiplies a and b then returns a new FieldElement structure (Field Multiplication).
  * 
  * @param a FieldElement value to be multiplied.
  * @param b FieldElement value to be multiplied.
+ * @return result of struct FieldElement 
  */
 struct FieldElement mulFE(struct FieldElement *a, struct FieldElement *b);
 
@@ -66,18 +77,14 @@ void checkFE(struct FieldElement *a);
 int ltFE(struct FieldElement *a, struct FieldElement *b);
 
 /**
- * @brief Prints the two 31 bit limbs of the field element in base 10.
+ * @brief Prints the two 31 bit limbs of the field element in base 10 or base 2.
  * 
  * @param a The FieldElement value to be printed.
  */
 void printFE(struct FieldElement *a);
-
-/**
- * @brief Prints the two 31 bit limbs of the field element in base 2.
- * 
- * @param a The FieldElement value to be printed.
- */
 void printBinaryFE(struct FieldElement *a);
+void printBinaryFEWithLabel(char label[], struct FieldElement *a);
+void printFEWithLabel(char label[], struct FieldElement *a);
 
 // FUNCTION IMPLEMENTATIONS
 
@@ -85,34 +92,36 @@ struct FieldElement addFE(struct FieldElement *a, struct FieldElement *b)
 {
     checkFE(a);
     checkFE(b);
-    uint31 carry = 0;
-    uint31 sum = addU31(a->lower, b->lower);
-    if (sum < a->lower)
-    {
-        carry = 1;
-    }
-    struct FieldElement result;
-    result.upper = addU31(a->upper, addU31(b->upper, carry));
-    result.lower = sum;
+    struct Uint31Result resultLower = addU31_2(a->lower, b->lower);
+    uint31 resultUpper = addU31(a->upper, b->upper); // does not overflow bcz a and b are less than 2**30
+    resultUpper = addU31(resultUpper, resultLower.carry);
+
+    struct FieldElement result = {.upper = resultUpper, .lower = resultLower.value};
+
     if (!ltFE(&result, &prime))
     {
-        // here we need to subtract the prime
+        // A < P and B < P
+        // => A + B < 2P
+        // => A + B - P < P
+        result = subFE(&result, &prime);
     }
     return result;
 }
 
-void subFE(struct FieldElement *a, struct FieldElement *b, struct FieldElement *result)
+struct FieldElement subFE(struct FieldElement *a, struct FieldElement *b)
 {
-    uint31 upper = a->upper;
-    uint31 lower = a->lower;
-    uint31 carry = 0;
-    uint31 diff = subU31(lower, b->lower);
-    if (diff > lower)
+    if (ltFE(a, b))
     {
-        carry = 1;
+        printf("Error in subFE: a is not less than b.\n");
+        printBinaryFEWithLabel("a", a);
+        printBinaryFEWithLabel("b", b);
+        exit(EXIT_FAILURE);
     }
-    result->upper = subU31(upper, subU31(b->upper, carry));
-    result->lower = diff;
+    struct Uint31Result resultLower = subU31_2(a->lower, b->lower);
+    uint31 resultUpper = subU31(a->upper, b->upper); // does not overflow bcz the above if condition implies a >= b
+    resultUpper = subU31(resultUpper, resultLower.carry);
+    struct FieldElement result = {.upper = resultUpper, .lower = resultLower.value};
+    return result;
 }
 
 void modFE(struct FieldElement *a)
