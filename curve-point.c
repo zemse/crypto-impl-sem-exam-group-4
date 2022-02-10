@@ -12,6 +12,7 @@
 // standard libraries
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 // custom libraries
 #include "field-element.c" // includes uint31.c
@@ -65,6 +66,40 @@ struct CurvePoint doubleCP(struct CurvePoint *A)
 struct CurvePoint montgomeryLadder(struct CurvePoint *A, struct FieldElement *n)
 {
     // TODO implement
+
+    struct CurvePoint R = *A;
+    struct CurvePoint S = doubleCP(A);
+
+    //Get MSB
+    uint31 temp = n->upper;
+    int len = (int)(log(temp) / log(2)) + 1;
+    int pos = (1 << (len - 1));
+
+    for (int k = 0; k < 2; k++)
+    {
+
+        for (int i = len; i > 0; i--)
+        {
+            if ((pos & temp) == pos)
+            {
+                //"1"
+                S = addCP(&S, &R);
+                R = doubleCP(&R);
+            }
+            else
+            {
+                //"0"
+                R = addCP(&S, &R);
+                S = doubleCP(&R);
+            }
+            temp = temp << 1;
+        }
+
+        temp = n->lower;
+        len = (int)(log(temp) / log(2)) + 1;
+        pos = (1 << (len - 1));
+    }
+
     struct CurvePoint result;
     return result;
 }
