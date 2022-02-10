@@ -120,8 +120,20 @@ struct CurvePoint montgomeryLadder(struct CurvePoint *A, struct FieldElement *n)
     int len = (int)(log(temp) / log(2)) + 1;
     int pos = (1 << (len - 1));
 
+    struct CurvePoint temp1[2];
+    struct CurvePoint temp2[2];
+
     for (int i = len; i > 0; i--)
     {
+        temp1[0] = doubleCP(&S);
+        temp1[1] = addCP(&S, &R);
+
+        temp2[0] = addCP(&S, &R);
+        temp2[1] = doubleCP(&R);
+
+        S = temp1[(pos & temp) == pos];
+        R = temp2[(pos & temp) == pos];
+        /*
         if ((pos & temp) == pos)
         {
             //"1"
@@ -132,8 +144,9 @@ struct CurvePoint montgomeryLadder(struct CurvePoint *A, struct FieldElement *n)
         {
             //"0"
             R = addCP(&S, &R);
-            S = doubleCP(&R);
+            S = doubleCP(&S);
         }
+        */
         temp = temp << 1;
     }
 
