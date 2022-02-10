@@ -29,9 +29,9 @@ struct FieldElement prime = {.upper = 1073741823, .lower = 2147483647}; // 2**61
 /**
  * @brief Takes the modulo of the field element with the prime (Modular Reduction).
  * 
- * @param a The value to be taken modulo. The function writes the result to this value.
+ * @param a The value to be taken modulo.
  */
-void modFE(struct FieldElement *a);
+struct FieldElement modFE(struct FieldElement *a);
 
 /**
  * @brief Adds a and b then returns a new FieldElement structure (Field Addition).
@@ -75,6 +75,9 @@ void checkFE(struct FieldElement *a);
  * @return int, 0 if false, 1 if true.
  */
 int ltFE(struct FieldElement *a, struct FieldElement *b);
+
+unsigned long convertToUnsignedLong(struct FieldElement *a);
+struct FieldElement convertToFieldElement(unsigned long a);
 
 /**
  * @brief Prints the two 31 bit limbs of the field element in base 10 or base 2.
@@ -130,9 +133,47 @@ struct FieldElement subFE(struct FieldElement *a, struct FieldElement *b)
     return addFE(a, &b_inv);
 }
 
-void modFE(struct FieldElement *a)
+struct FieldElement mulFE(struct FieldElement *a, struct FieldElement *b)
 {
-    // TODO implement
+    unsigned long a_ = convertToUnsignedLong(a);
+    unsigned long b_ = convertToUnsignedLong(b);
+
+    // splitting x and y into two halves
+    unsigned long aH = (a_ >> 31) & 0x7FFFFFFF;
+    unsigned long aL = a_ & 0x7FFFFFFF;
+    unsigned long bH = (b_ >> 31) & 0x7FFFFFFF;
+    unsigned long bL = b_ & 0x7FFFFFFF;
+
+    // ab = h*(2**62) + m*(2**31) + l
+    unsigned long h = aH * bH;
+    unsigned long l = aL * bL;
+    unsigned long m = (aH + aL) * (bH + bL) - h - l;
+
+    h += ((m & 0x7FFFFFFF) << 31);
+    l += (m >> 31) & 0x7FFFFFFF;
+
+    return convertToFieldElement(l + 2 * h);
+}
+
+unsigned long convertToUnsignedLong(struct FieldElement *a)
+{
+    return (a->upper << 31) + (a->lower & 0x7FFFFFFF);
+}
+
+struct FieldElement convertToFieldElement(unsigned long a)
+{
+    unsigned long int prime_ = convertToUnsignedLong(&prime);
+    a = a % prime_;
+
+    struct FieldElement result;
+    result.upper = a >> 31;
+    result.lower = a & 0x7FFFFFFF;
+    return result;
+}
+
+struct FieldElement modFE(struct FieldElement *a)
+{
+    return convertToFieldElement(convertToUnsignedLong(&prime));
 }
 
 int ltFE(struct FieldElement *a, struct FieldElement *b)
@@ -162,7 +203,7 @@ void checkFE(struct FieldElement *a)
 
 void printFEWithLabel(char label[], struct FieldElement *a)
 {
-    printf("\nFieldElement %s <%u,%u>", label, a->upper, a->lower);
+    printf("\nFieldElement %s <%lu,%lu>", label, a->upper, a->lower);
 }
 
 void printFE(struct FieldElement *a)
@@ -181,5 +222,5 @@ void printBinaryFEWithLabel(char label[], struct FieldElement *a)
 
 void printBinaryFE(struct FieldElement *a)
 {
-    printBinaryFEWithLabel("hello", a);
+    printBinaryFEWithLabel("", a);
 }

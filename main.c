@@ -28,6 +28,9 @@ int main()
     struct FieldElement resSub = subFE(&res, &b);
     printBinaryFEWithLabel("subFE(a+b,b)", &resSub);
 
+    struct FieldElement resMul = mulFE(&a, &b);
+    printBinaryFEWithLabel("mulFE(a,b)", &resMul);
+
     // TODO add solution code
 
     return 0;

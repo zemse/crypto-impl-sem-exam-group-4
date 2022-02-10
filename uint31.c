@@ -9,7 +9,7 @@
  * 
  */
 
-typedef unsigned int uint31; // considering 31 bits as a limb
+typedef unsigned long int uint31; // considering 31 bits as a limb
 
 struct Uint31Result
 {
@@ -50,14 +50,13 @@ struct Uint31Result subU31_2(uint31 a, uint31 b)
 
 void printU31(uint31 a)
 {
-    printf("%u\n", a);
+    printf("%lu\n", a);
 }
 
 void printBinaryU31(uint31 a)
 {
-    // printf("%s: %u\n", str, );
     for (int i = 30; i >= 0; i--)
     {
-        printf("%d", (a >> i) & 1);
+        printf("%lu", (a >> i) & 1);
     }
 }
