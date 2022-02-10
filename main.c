@@ -21,8 +21,10 @@ int main()
     // LOGIC:
     struct FieldElement a = {.upper = 1 << 28, .lower = 1 << 30};
     struct FieldElement b = {.upper = 1 << 28, .lower = 1 << 30};
+    struct FieldElement n = {.upper = 1 << 29, .lower = 1 << 30};
     printBinaryFEWithLabel("a", &a);
     printBinaryFEWithLabel("b", &b);
+    printBinaryFEWithLabel("n", &b);
 
     struct FieldElement res = addFE(&a, &b);
     printBinaryFEWithLabel("addFE(a,b)", &res);
@@ -35,6 +37,13 @@ int main()
 
     struct FieldElement resPow = powFE(&a, &b);
     printBinaryFEWithLabel("powFE(a,b)", &resPow);
+
+    struct CurvePoint Q = {.x = Px, .y = Py, .z = a};
+    struct CurvePoint ladder = montgomeryLadder(&Q, &n);
+    printBinaryFEWithLabel("montgomeryLadder", &ladder);
+
+    struct FieldElement retrive_y = retrive_yn(&a, &ladder.x);
+    printCPBinary("retrive_yn()", &retrive_y);
 
     // TODO add solution code
 

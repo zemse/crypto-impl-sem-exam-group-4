@@ -152,3 +152,48 @@ struct CurvePoint montgomeryLadder(struct CurvePoint *A, struct FieldElement *n)
 
     return R;
 }
+
+struct FieldElement retrive_yn(struct CurvePoint *P, struct CurvePoint *R)
+{
+
+    struct FieldElement prime = {.upper = 1073741823, .lower = 2147483647}; // 2**61 - 1 = 1073741823 * 2**31 + 2147483647
+    struct FieldElement two = {.upper = 0, .lower = 2};
+    struct FieldElement power = _subFE(&prime, &two);
+    struct FieldElement inverse_of_zn = powFE(&R->z, &power);
+
+    struct FieldElement x_n = mulFE(&R->x, &inverse_of_zn);
+    struct CurvePoint S = addCP(R, P);
+
+    struct FieldElement inverse_of_zn1 = powFE(&S.z, &power);
+    struct FieldElement x_n1 = mulFE(&S.x, &inverse_of_zn1);
+
+    struct FieldElement a = addFE(&P->x, &x_n);
+    struct FieldElement b = mulFE(&P->x, &x_n);
+
+    struct FieldElement A = {.upper = 371610194, .lower = 1493483305}; // 798026816538591017 = 371610194 * 2^31 + 1493483305
+    struct FieldElement B = {.upper = 0, .lower = 1};
+
+    b = addFE(&b, &A);
+    b = mulFE(&b, &a);
+    struct FieldElement b2 = mulFE(&B, &two);
+    b = addFE(&b, &b2);
+    struct FieldElement c = subFE(&P->x, &x_n);
+    c = mulFE(&c, &c);
+    c = mulFE(&c, &x_n1);
+    c = subFE(&b, &c);
+
+    struct FieldElement y2 = mulFE(&P->y, &two);
+    struct FieldElement inverse_of_2y1 = powFE(&y2, &power);
+    struct FieldElement yn = mulFE(&c, &inverse_of_2y1);
+
+    return yn;
+}
+
+void printCPBinaryWithLabel(char label[], struct CurvePoint *P)
+{
+    printf("CurvePoint %s", label);
+    printBinaryFEWithLabel("x", &P->x);
+    printBinaryFEWithLabel("y", &P->y);
+    printBinaryFEWithLabel("z", &P->z);
+    printf("\n");
+}
