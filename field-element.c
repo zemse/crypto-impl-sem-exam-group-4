@@ -131,24 +131,13 @@ void modFE(struct FieldElement *a)
 
 int ltFE(struct FieldElement *a, struct FieldElement *b)
 {
-    if (a->upper < b->upper)
+    if (a->upper != b->upper)
     {
-        return 1;
-    }
-    else if (a->upper == b->upper)
-    {
-        if (a->lower < b->lower)
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
+        return a->upper < b->upper ? 1 : 0;
     }
     else
     {
-        return 0;
+        return a->lower < b->lower ? 1 : 0;
     }
 }
 
