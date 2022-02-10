@@ -52,7 +52,7 @@ struct FieldElement addFE(struct FieldElement *a, struct FieldElement *b);
 struct FieldElement subFE(struct FieldElement *a, struct FieldElement *b);
 
 /**
- * @brief Multiplies a and b then returns a new FieldElement structure (Field Multiplication).
+ * @brief Performs Karatsuba multiplication for a and b then returns a new FieldElement structure (Field Multiplication).
  * 
  * @param a FieldElement value to be multiplied.
  * @param b FieldElement value to be multiplied.
@@ -76,7 +76,20 @@ void checkFE(struct FieldElement *a);
  */
 int ltFE(struct FieldElement *a, struct FieldElement *b);
 
+/**
+ * @brief Converts a Field Element (2x 31 bit limb) into unsigned long.
+ * 
+ * @param a value as FieldElement.
+ * @return value as unsigned long.
+ */
 unsigned long convertToUnsignedLong(struct FieldElement *a);
+
+/**
+ * @brief Converts a unsigned long info Field Element (2x 31 bit limb)
+ * 
+ * @param a value as unsigned long.
+ * @return value as FieldElement.
+ */
 struct FieldElement convertToFieldElement(unsigned long a);
 
 /**
@@ -138,7 +151,7 @@ struct FieldElement mulFE(struct FieldElement *a, struct FieldElement *b)
     unsigned long a_ = convertToUnsignedLong(a);
     unsigned long b_ = convertToUnsignedLong(b);
 
-    // splitting x and y into two halves
+    // splitting x and y into two halves for karatsuba multiplication
     unsigned long aH = (a_ >> 31) & 0x7FFFFFFF;
     unsigned long aL = a_ & 0x7FFFFFFF;
     unsigned long bH = (b_ >> 31) & 0x7FFFFFFF;
@@ -153,22 +166,6 @@ struct FieldElement mulFE(struct FieldElement *a, struct FieldElement *b)
     l += (m >> 31) & 0x7FFFFFFF;
 
     return convertToFieldElement(l + 2 * h);
-}
-
-unsigned long convertToUnsignedLong(struct FieldElement *a)
-{
-    return (a->upper << 31) + (a->lower & 0x7FFFFFFF);
-}
-
-struct FieldElement convertToFieldElement(unsigned long a)
-{
-    unsigned long int prime_ = convertToUnsignedLong(&prime);
-    a = a % prime_;
-
-    struct FieldElement result;
-    result.upper = a >> 31;
-    result.lower = a & 0x7FFFFFFF;
-    return result;
 }
 
 struct FieldElement modFE(struct FieldElement *a)
@@ -199,6 +196,22 @@ void checkFE(struct FieldElement *a)
         printf("\n");
         exit(EXIT_FAILURE);
     }
+}
+
+unsigned long convertToUnsignedLong(struct FieldElement *a)
+{
+    return (a->upper << 31) + (a->lower & 0x7FFFFFFF);
+}
+
+struct FieldElement convertToFieldElement(unsigned long a)
+{
+    unsigned long int prime_ = convertToUnsignedLong(&prime);
+    a = a % prime_;
+
+    struct FieldElement result;
+    result.upper = a >> 31;
+    result.lower = a & 0x7FFFFFFF;
+    return result;
 }
 
 void printFEWithLabel(char label[], struct FieldElement *a)
