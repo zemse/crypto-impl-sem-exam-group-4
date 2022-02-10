@@ -11,6 +11,12 @@
 
 typedef unsigned int uint31; // considering 31 bits as a limb
 
+struct Uint31Result
+{
+    uint31 carry;
+    uint31 value;
+};
+
 uint31 addU31(uint31 a, uint31 b);
 uint31 subU31(uint31 a, uint31 b);
 void printU31(uint31 a);
@@ -21,9 +27,25 @@ uint31 addU31(uint31 a, uint31 b)
     return (a + b) % (1 << 31);
 }
 
+struct Uint31Result addU31_2(uint31 a, uint31 b)
+{
+    struct Uint31Result result;
+    result.value = (a + b) % (1 << 31);
+    result.carry = (a + b) / (1 << 31);
+    return result;
+}
+
 uint31 subU31(uint31 a, uint31 b)
 {
     return a - b % (1 << 31);
+}
+
+struct Uint31Result subU31_2(uint31 a, uint31 b)
+{
+    struct Uint31Result result;
+    result.value = a - b % (1 << 31);
+    result.carry = (a - b) / (1 << 31) ? 1 : 0; // means subtraction overflow
+    return result;
 }
 
 void printU31(uint31 a)
