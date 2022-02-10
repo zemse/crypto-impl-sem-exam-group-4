@@ -21,6 +21,8 @@ int main()
     // LOGIC:
     struct FieldElement a = {.upper = 1 << 28, .lower = 1 << 30};
     struct FieldElement b = {.upper = 1 << 28, .lower = 1 << 30};
+    printBinaryFEWithLabel("a", &a);
+    printBinaryFEWithLabel("b", &b);
 
     struct FieldElement res = addFE(&a, &b);
     printBinaryFEWithLabel("addFE(a,b)", &res);
@@ -30,6 +32,9 @@ int main()
 
     struct FieldElement resMul = mulFE(&a, &b);
     printBinaryFEWithLabel("mulFE(a,b)", &resMul);
+
+    struct FieldElement resPow = powFE(&a, &b);
+    printBinaryFEWithLabel("powFE(a,b)", &resPow);
 
     // TODO add solution code
 

@@ -61,11 +61,27 @@ struct FieldElement subFE(struct FieldElement *a, struct FieldElement *b);
 struct FieldElement mulFE(struct FieldElement *a, struct FieldElement *b);
 
 /**
+ * @brief Performs exponentiation of a with b then returns a new FieldElement structure (Field Exponentiation).
+ * 
+ * @param a FieldElement value that is base.
+ * @param b FieldElement value that is exponent.
+ * @return result of struct FieldElement
+ */
+struct FieldElement powFE(struct FieldElement *a, struct FieldElement *b);
+
+/**
  * @brief Sanity check for the field element. Throws an error if the field element is not valid.
  * 
  * @param a The FieldElement value to be checked.
  */
 void checkFE(struct FieldElement *a);
+
+/**
+ * @brief Copy the object a into a new object.
+ * 
+ * @param a The FieldElement value to be copied
+ */
+struct FieldElement copyFE(struct FieldElement *a);
 
 /**
  * @brief Less than to comparison of two field elements.
@@ -173,6 +189,37 @@ struct FieldElement modFE(struct FieldElement *a)
     return convertToFieldElement(convertToUnsignedLong(&prime));
 }
 
+struct FieldElement powFE(struct FieldElement *a, struct FieldElement *b)
+{
+    checkFE(a);
+    checkFE(b);
+    unsigned long int b_ = convertToUnsignedLong(b);
+
+    struct FieldElement result = convertToFieldElement(1);
+    struct FieldElement product = copyFE(a);
+
+    while (b_ > 0)
+    {
+        if (b_ & 1)
+        {
+            result = mulFE(&result, &product);
+        }
+
+        b_ = b_ >> 1;
+        product = mulFE(&product, &product);
+    }
+
+    return result;
+}
+
+struct FieldElement copyFE(struct FieldElement *a)
+{
+    struct FieldElement result;
+    result.upper = a->upper;
+    result.lower = a->lower;
+    return result;
+}
+
 int ltFE(struct FieldElement *a, struct FieldElement *b)
 {
     if (a->upper != b->upper)
@@ -236,27 +283,4 @@ void printBinaryFEWithLabel(char label[], struct FieldElement *a)
 void printBinaryFE(struct FieldElement *a)
 {
     printBinaryFEWithLabel("", a);
-}
-
-struct FieldElement power(struct FieldElement *a, struct FieldElement *b, struct FieldElement *p)
-{
-    int res = 1; // Initialize result
-
-    x = x % p; // Update x if it is more than or
-               // equal to p
-
-    if (x == 0)
-        return 0; // In case x is divisible by p;
-
-    while (y > 0)
-    {
-        // If y is odd, multiply x with result
-        if (y & 1)
-            res = (res * x) % p;
-
-        // y must be even now
-        y = y >> 1; // y = y/2
-        x = (x * x) % p;
-    }
-    return res;
 }
